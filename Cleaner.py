@@ -1,20 +1,73 @@
 from openpyxl import load_workbook
+from tkinter import *
+from tkcalendar import Calendar
 import datetime
+import requests
 def ColorCheck(column, line, sh):
-    if (sh[column+str(line)].fill.start_color.index != sh[column+str(line+1)].fill.start_color.index and sh[column+str(line+1)].fill.start_color.index != 'FFFFFFFF' and sh[column+str(line+1)].fill.start_color.index != 'FFC2C0C4'):
-        print(sh[column+"2"].value + ': ' + sh[column+str(line+1)].value)
+    if ((sh[column+str(line)].fill.start_color.index != sh[column+str(line+1)].fill.start_color.index) and (sh[column+str(line+1)].fill.start_color.index != 'FFFFFFFF') and (sh[column+str(line+1)].fill.start_color.index != 'FFC2C0C4')):
+        return(sh[column+"2"].value + ': ' + sh[column+str(line+1)].value)
 
 def EmptyCheck(column, line, sh):
     if sh[column +str(line)].fill.start_color.index == 'FFFFFFFF' or sh[column+str(line)].fill.start_color.index == 'FFC2C0C4':
-        print(sh[column+"2"].value)
+        return(sh[column+"2"].value)
 
 def LeavCheck(column, line, sh):
     if (sh[column+str(line)].fill.start_color.index != 'FFC2C0C4' and sh[column+str(line)].fill.start_color.index != 'FFFFFFFF') and (sh[column+str(line+1)].fill.start_color.index == 'FFC2C0C4' or sh[column+str(line+1)].fill.start_color.index == 'FFFFFFFF'):
-        print(sh[column+"2"].value)
+        return(sh[column+"2"].value)
+
+def grad_date():
+    
+    listbox.delete(0,END)
+    listbox2.delete(0,END)
+    listbox3.delete(0,END)
+    alphabet = ["e","f","g","h","i","j","k","l","m","n","o","p"]
+    DateSelected = cal.get_date()
+    splitted = DateSelected.split(".")
+    day = splitted[0]
+    month = splitted[1]
+    month = month[1:]
+    monthJump = 0 
+    dayJump = (int(day) * 2) - 2
+
+    if month == '7':
+        monthJump = 795
+
+    elif month == '8':
+        monthJump = 860
+
+    elif month == '9':
+        monthJump = 922
+
+    elif month == '10':
+        monthJump = 982
+
+    elif month == '11':
+        monthJump = 1044
+
+    elif month == '12':
+        monthJump = 1104
+
+    else:
+        print('neplatny mesic, spustte program znovu')
+    line = dayJump + monthJump
+
+    listbox.insert(END, "Dnes odjíždí")
+    listbox2.insert(END, "Dnes Najizdi")
+    listbox3.insert(END, "Dnes nikdo nenajede")
+    for column in alphabet:
+        listbox.insert(END, LeavCheck(column, line, sh))
+        listbox2.insert(END, ColorCheck(column, line, sh))
+        listbox3.insert(END, EmptyCheck(column, line, sh))
+    
 
 now = datetime.datetime.now()
+"""
+URL= "https://docs.google.com/spreadsheets/d/17gqV91AY6qDqFDWn2Y_YXSkr_h43csFG4hMUJSWKeQ0/export?format=xlsx"
+response = requests.get(URL)
+open("Obsazenost.xlsx", "wb").write(response.content)
+"""
 year = now.year
-if year != 2021:
+if year != 2022:
     print("Stary script! nutna obnova")
     exit(1)
 
@@ -22,56 +75,34 @@ if year != 2021:
 
 wb = load_workbook("Obsazenost.xlsx", data_only=True)
 sh = wb["Rozpis pokoju"]
-month = input("zadejte mesic:")
-day = input("zadejte den:")
 
 
-monthJump = 0 
-dayJump = 0
-dayJump = (int(day) * 2) - 2
 
-if month == '1':
-    monthJump = 800
+window = Tk()
+window.title("(u)KLID")
+window.geometry("600x400")
+window.configure(bg='lightgray')
+cal = Calendar(window, selectmode = 'day',
+               year = now.year, month = now.month,
+               day = now.day, locale="cs_CZ")
 
-elif month == '2':
-    monthJump = 862
-
-elif month == '3':
-    monthJump = 918
-
-elif month == '4':
-    monthJump = 980
-
-elif month == '5':
-    monthJump = 1040
-
-elif month == '6':
-    monthJump = 1102
-
-elif month == '7':
-    monthJump = 1162
-
-elif month == '8':
-    monthJump = 1224
-
-elif month == '9':
-    monthJump = 1286
-
-elif month == '10':
-    monthJump = 1346
-
-elif month == '11':
-    monthJump = 1408
-
-elif month == '12':
-    monthJump = 1468
-
-else:
-    print('neplatny mesic, spustte program znovu')
+cal.pack(pady = 5, fill= BOTH)
+Button(window, text = "Get Date", command = grad_date).pack(pady = 20)
+listbox = Listbox(window)
+listbox2 = Listbox(window)
+listbox3 = Listbox(window)
+listbox.pack(expand=True, side="left", padx=5, fill=BOTH)
+listbox2.pack(expand=True, side="left", padx=5, fill=BOTH)
+listbox3.pack(expand=True, side="left", padx=5, fill=BOTH)
+ 
 
 
-line = dayJump + monthJump
-print('---------------------dnes odjizdi---------------------------')
+
+
+
+
+"""
+print('--------------------------dnes odjizdi----------------------')
 LeavCheck('e', line, sh)
 LeavCheck('f', line, sh)
 LeavCheck('g', line, sh)
@@ -84,7 +115,7 @@ LeavCheck('m', line, sh)
 LeavCheck('n', line, sh)
 LeavCheck('o', line, sh)
 LeavCheck('p', line, sh)
-print('---------------------dnes odjizdi---------------------------')
+print('-------------------------dnes odjizdi-----------------------')
 print()
 print('-------------------------dnes najedou-----------------------')
 ColorCheck('e', line, sh)
@@ -116,3 +147,5 @@ EmptyCheck('o', line+1, sh)
 EmptyCheck('p', line+1, sh)
 print('----------------------nikdo dnes nenajizdi-------------------')
 input('stisknete libovolnou klavesu pro ukonceni programu')
+"""
+window.mainloop()
