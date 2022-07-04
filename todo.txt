@@ -1,0 +1,4 @@
+tisk seznamu pokoju,
+posledni sloupec- co se da nachystat, co nehori(muze se nachystat, pokud jeste neni)
+u pokoje 6-(postele od sebe???)
+kdyz je prazdny pokoj, nevypisovat
