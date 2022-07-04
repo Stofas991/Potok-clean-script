@@ -1,26 +1,36 @@
 from openpyxl import load_workbook
 from tkinter import *
 from tkcalendar import Calendar
+import tkcap
+from PIL import Image
 import datetime
 import requests
 def ColorCheck(column, line, sh):
     #dnes najizdi
     if ((sh[column+str(line)].fill.start_color.index != sh[column+str(line+1)].fill.start_color.index) and (sh[column+str(line+1)].fill.start_color.index != 'FFFFFFFF') and (sh[column+str(line+1)].fill.start_color.index != 'FFC2C0C4') and (sh[column+str(line+1)].fill.start_color.index != 'C2C0C4')):
-        if (sh[column+str(line)].fill.start_color.index != sh[column+str(line+1)].fill.start_color.index):
+        if (sh[column+str(line)].fill.start_color.index != sh[column+str(line+1)].fill.start_color.index) and (sh[column+str(line)].fill.start_color.index != 'FFFFFFFF') and (sh[column+str(line)].fill.start_color.index != 'FFC2C0C4') and (sh[column+str(line)].fill.start_color.index != 'C2C0C4'):
             listbox.insert(END, sh[column+"2"].value)
-        listbox2.insert(END, sh[column+"2"].value + ': ' + sh[column+str(line+1)].value)
-    #dnes nikdo nenajede
-    elif sh[column +str(line)].fill.start_color.index == 'FFFFFFFF' or sh[column+str(line)].fill.start_color.index == 'FFC2C0C4':
-        listbox3.insert(END, sh[column+"2"].value)
+        if (column == "i"):
+            listbox2.insert(END, sh[column+"2"].value + ': ' + sh[column+str(line+1)].value + ' - Postele od sebe???')
+        else:
+            listbox2.insert(END, sh[column+"2"].value + ': ' + sh[column+str(line+1)].value)
     #dnes odjizdi
     elif (sh[column+str(line)].fill.start_color.index != 'FFC2C0C4' and sh[column+str(line)].fill.start_color.index != 'FFFFFFFF') and (sh[column+str(line+1)].fill.start_color.index == 'FFC2C0C4' or sh[column+str(line+1)].fill.start_color.index == 'FFFFFFFF'):
         listbox.insert(END, sh[column+"2"].value)
-
+def Screenshot():
+    cap = tkcap.CAP(window)
+    cap.capture('screenshot.jpg')
+    im = Image.open(r"C:\Users\stofa\OneDrive\Documents\GitHub\Potok-clean-script\screenshot.jpg")
+    left = 0
+    top = 400
+    right = 1000
+    bottom = 900
+    imEdited = im.crop((left, top, right, bottom))
+    imEdited.show()
 def grad_date():
     
     listbox.delete(0,END)
     listbox2.delete(0,END)
-    listbox3.delete(0,END)
     alphabet = ["e","f","g","h","i","j","k","l","m","n","o","p"]
     DateSelected = cal.get_date()
     splitted = DateSelected.split(".")
@@ -53,8 +63,7 @@ def grad_date():
     line = dayJump + monthJump
 
     listbox.insert(END, "Dnes odjíždí")
-    listbox2.insert(END, "Dnes Najizdi")
-    listbox3.insert(END, "Dnes nikdo nenajede")
+    listbox2.insert(END, "Dnes Najíždí")
     for column in alphabet:
         ColorCheck(column, line, sh)
     
@@ -79,7 +88,7 @@ sh = wb["Rozpis pokoju"]
 
 window = Tk()
 window.title("(u)KLID")
-window.geometry("600x400")
+window.geometry("1100x900")
 window.configure(bg='lightgray')
 cal = Calendar(window, selectmode = 'day',
                year = now.year, month = now.month,
@@ -87,12 +96,11 @@ cal = Calendar(window, selectmode = 'day',
 
 cal.pack(pady = 5, fill= BOTH)
 Button(window, text = "Vypsat úklidy", command = grad_date).pack(pady = 20)
-listbox = Listbox(window)
-listbox2 = Listbox(window)
-listbox3 = Listbox(window)
+
+listbox = Listbox(window, font=("Arial", 15))
+listbox2 = Listbox(window, font=("Arial", 15))
 listbox.pack(expand=True, side="left", padx=5, fill=BOTH)
 listbox2.pack(expand=True, side="left", padx=5, fill=BOTH)
-listbox3.pack(expand=True, side="left", padx=5, fill=BOTH)
  
 
 
